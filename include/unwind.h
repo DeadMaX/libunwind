@@ -117,17 +117,17 @@ struct _Unwind_Exception; // forward declaration
 typedef struct _Unwind_Exception _Unwind_Exception;
 
 struct _Unwind_Exception {
-  uint64_t exception_class;
+  std::uint64_t exception_class;
   void (*exception_cleanup)(_Unwind_Reason_Code reason,
                             _Unwind_Exception *exc);
-  uintptr_t private_1; // non-zero means forced unwind
-  uintptr_t private_2; // holds sp that phase1 found for phase2 to use
+  std::uintptr_t private_1; // non-zero means forced unwind
+  std::uintptr_t private_2; // holds sp that phase1 found for phase2 to use
 #if __SIZEOF_POINTER__ == 4
   // The implementation of _Unwind_Exception uses an attribute mode on the
   // above fields which has the side effect of causing this whole struct to
   // round up to 32 bytes in size. To be more explicit, we add pad fields
   // added for binary compatibility.
-  uint32_t reserved[3];
+  std::uint32_t reserved[3];
 #endif
   // The Itanium ABI requires that _Unwind_Exception objects are "double-word
   // aligned".  GCC has interpreted this to mean "use the maximum useful
@@ -137,7 +137,7 @@ struct _Unwind_Exception {
 typedef _Unwind_Reason_Code (*_Unwind_Stop_Fn)
     (int version,
      _Unwind_Action actions,
-     uint64_t exceptionClass,
+     std::uint64_t exceptionClass,
      _Unwind_Exception* exceptionObject,
      struct _Unwind_Context* context,
      void* stop_parameter );
@@ -145,7 +145,7 @@ typedef _Unwind_Reason_Code (*_Unwind_Stop_Fn)
 typedef _Unwind_Reason_Code (*__personality_routine)
       (int version,
        _Unwind_Action actions,
-       uint64_t exceptionClass,
+       std::uint64_t exceptionClass,
        _Unwind_Exception* exceptionObject,
        struct _Unwind_Context* context);
 #endif
@@ -210,11 +210,11 @@ _Unwind_VRS_Pop(_Unwind_Context *context, _Unwind_VRS_RegClass regclass,
 
 #if !defined(_LIBUNWIND_ARM_EHABI)
 
-extern uintptr_t _Unwind_GetGR(struct _Unwind_Context *context, int index);
+extern std::uintptr_t _Unwind_GetGR(struct _Unwind_Context *context, int index);
 extern void _Unwind_SetGR(struct _Unwind_Context *context, int index,
-                          uintptr_t new_value);
-extern uintptr_t _Unwind_GetIP(struct _Unwind_Context *context);
-extern void _Unwind_SetIP(struct _Unwind_Context *, uintptr_t new_value);
+                          std::uintptr_t new_value);
+extern std::uintptr_t _Unwind_GetIP(struct _Unwind_Context *context);
+extern void _Unwind_SetIP(struct _Unwind_Context *, std::uintptr_t new_value);
 
 #else  // defined(_LIBUNWIND_ARM_EHABI)
 
@@ -233,14 +233,14 @@ extern void _Unwind_SetIP(struct _Unwind_Context *, uintptr_t new_value);
 
 _LIBUNWIND_EXPORT_UNWIND_LEVEL1
 uintptr_t _Unwind_GetGR(struct _Unwind_Context *context, int index) {
-  uintptr_t value = 0;
+  std::uintptr_t value = 0;
   _Unwind_VRS_Get(context, _UVRSC_CORE, (uint32_t)index, _UVRSD_UINT32, &value);
   return value;
 }
 
 _LIBUNWIND_EXPORT_UNWIND_LEVEL1
 void _Unwind_SetGR(struct _Unwind_Context *context, int index,
-                   uintptr_t value) {
+                   std::uintptr_t value) {
   _Unwind_VRS_Set(context, _UVRSC_CORE, (uint32_t)index, _UVRSD_UINT32, &value);
 }
 
@@ -251,14 +251,14 @@ uintptr_t _Unwind_GetIP(struct _Unwind_Context *context) {
 }
 
 _LIBUNWIND_EXPORT_UNWIND_LEVEL1
-void _Unwind_SetIP(struct _Unwind_Context *context, uintptr_t value) {
-  uintptr_t thumb_bit = _Unwind_GetGR(context, 15) & ((uintptr_t)0x1);
+void _Unwind_SetIP(struct _Unwind_Context *context, std::uintptr_t value) {
+  std::uintptr_t thumb_bit = _Unwind_GetGR(context, 15) & ((uintptr_t)0x1);
   _Unwind_SetGR(context, 15, value | thumb_bit);
 }
 #endif  // defined(_LIBUNWIND_ARM_EHABI)
 
-extern uintptr_t _Unwind_GetRegionStart(struct _Unwind_Context *context);
-extern uintptr_t
+extern std::uintptr_t _Unwind_GetRegionStart(struct _Unwind_Context *context);
+extern std::uintptr_t
     _Unwind_GetLanguageSpecificData(struct _Unwind_Context *context);
 #ifdef __USING_SJLJ_EXCEPTIONS__
 extern _Unwind_Reason_Code
@@ -301,7 +301,7 @@ extern _Unwind_Reason_Code _Unwind_Backtrace(_Unwind_Trace_Fn, void *);
 // _Unwind_GetCFA is a gcc extension that can be called from within a
 // personality handler to get the CFA (stack pointer before call) of
 // current frame.
-extern uintptr_t _Unwind_GetCFA(struct _Unwind_Context *);
+extern std::uintptr_t _Unwind_GetCFA(struct _Unwind_Context *);
 
 
 // _Unwind_GetIPInfo is a gcc extension that can be called from within a
@@ -310,7 +310,7 @@ extern uintptr_t _Unwind_GetCFA(struct _Unwind_Context *);
 // instruction causing the unwind. Normally, in a function call, the IP returned
 // is the return address which is after the call instruction and may be past the
 // end of the function containing the call instruction.
-extern uintptr_t _Unwind_GetIPInfo(struct _Unwind_Context *context,
+extern std::uintptr_t _Unwind_GetIPInfo(struct _Unwind_Context *context,
                                    int *ipBefore);
 
 
@@ -329,9 +329,9 @@ extern void __deregister_frame(const void *fde);
 // function will only work if the target function has an FDE but no compact
 // unwind info.
 struct dwarf_eh_bases {
-  uintptr_t tbase;
-  uintptr_t dbase;
-  uintptr_t func;
+  std::uintptr_t tbase;
+  std::uintptr_t dbase;
+  std::uintptr_t func;
 };
 extern const void *_Unwind_Find_FDE(const void *pc, struct dwarf_eh_bases *);
 
@@ -345,9 +345,9 @@ extern void *_Unwind_FindEnclosingFunction(void *pc);
 
 // Mac OS X does not support text-rel and data-rel addressing so these functions
 // are unimplemented
-extern uintptr_t _Unwind_GetDataRelBase(struct _Unwind_Context *context)
+extern std::uintptr_t _Unwind_GetDataRelBase(struct _Unwind_Context *context)
     LIBUNWIND_UNAVAIL;
-extern uintptr_t _Unwind_GetTextRelBase(struct _Unwind_Context *context)
+extern std::uintptr_t _Unwind_GetTextRelBase(struct _Unwind_Context *context)
     LIBUNWIND_UNAVAIL;
 
 // Mac OS X 10.4 and 10.5 had implementations of these functions in
