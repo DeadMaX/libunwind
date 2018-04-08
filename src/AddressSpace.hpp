@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#if !defined(_LIBUNWIND_IS_BAREMETAL) && !defined(_WIN32)
+#if !defined(LIBUNWIND_STANDFREE) && !defined(_LIBUNWIND_IS_BAREMETAL) && !defined(_WIN32)
 #include <dlfcn.h>
 #endif
 

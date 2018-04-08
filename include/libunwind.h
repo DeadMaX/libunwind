@@ -16,8 +16,8 @@
 
 #include <__libunwind_config.h>
 
-#include <stdint.h>
-#include <stddef.h>
+#include <cstdint>
+#include <cstddef>
 
 #ifdef __APPLE__
   #if __clang__
@@ -60,21 +60,21 @@ enum {
 };
 
 struct unw_context_t {
-  uint64_t data[_LIBUNWIND_CONTEXT_SIZE];
+  std::uint64_t data[_LIBUNWIND_CONTEXT_SIZE];
 };
 typedef struct unw_context_t unw_context_t;
 
 struct unw_cursor_t {
-  uint64_t data[_LIBUNWIND_CURSOR_SIZE];
+  std::uint64_t data[_LIBUNWIND_CURSOR_SIZE];
 };
 typedef struct unw_cursor_t unw_cursor_t;
 
 typedef struct unw_addr_space *unw_addr_space_t;
 
 typedef int unw_regnum_t;
-typedef uintptr_t unw_word_t;
+typedef std::uintptr_t unw_word_t;
 #if defined(__arm__)
-typedef uint64_t unw_fpreg_t;
+typedef std::uint64_t unw_fpreg_t;
 #else
 typedef double unw_fpreg_t;
 #endif
@@ -87,8 +87,8 @@ struct unw_proc_info_t {
   unw_word_t  handler;          /* personality routine, or zero if not used */
   unw_word_t  gp;               /* not used */
   unw_word_t  flags;            /* not used */
-  uint32_t    format;           /* compact unwind encoding, or zero if none */
-  uint32_t    unwind_info_size; /* size of DWARF unwind info, or zero if none */
+  std::uint32_t    format;      /* compact unwind encoding, or zero if none */
+  std::uint32_t    unwind_info_size; /* size of DWARF unwind info, or zero if none */
   unw_word_t  unwind_info;      /* address of DWARF unwind info, or zero */
   unw_word_t  extra;            /* mach_header of mach-o image containing func */
 };
@@ -117,7 +117,7 @@ extern const char *unw_regname(unw_cursor_t *, unw_regnum_t) LIBUNWIND_AVAIL;
 extern int unw_get_proc_info(unw_cursor_t *, unw_proc_info_t *) LIBUNWIND_AVAIL;
 extern int unw_is_fpreg(unw_cursor_t *, unw_regnum_t) LIBUNWIND_AVAIL;
 extern int unw_is_signal_frame(unw_cursor_t *) LIBUNWIND_AVAIL;
-extern int unw_get_proc_name(unw_cursor_t *, char *, size_t, unw_word_t *) LIBUNWIND_AVAIL;
+extern int unw_get_proc_name(unw_cursor_t *, char *, std::size_t, unw_word_t *) LIBUNWIND_AVAIL;
 //extern int       unw_get_save_loc(unw_cursor_t*, int, unw_save_loc_t*);
 
 extern unw_addr_space_t unw_local_addr_space;
