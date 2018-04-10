@@ -22,7 +22,7 @@
 namespace libunwind {
 
 // For emulating 128-bit registers
-struct v128 { uint32_t vec[4]; };
+struct v128 { std::uint32_t vec[4]; };
 
 
 #if defined(_LIBUNWIND_TARGET_I386)
@@ -34,8 +34,8 @@ public:
   Registers_x86(const void *registers);
 
   bool        validRegister(int num) const;
-  uint32_t    getRegister(int num) const;
-  void        setRegister(int num, uint32_t value);
+  std::uint32_t    getRegister(int num) const;
+  void        setRegister(int num, std::uint32_t value);
   bool        validFloatRegister(int) const { return false; }
   double      getFloatRegister(int num) const;
   void        setFloatRegister(int num, double value);
@@ -46,22 +46,22 @@ public:
   void        jumpto();
   static int  lastDwarfRegNum() { return _LIBUNWIND_HIGHEST_DWARF_REGISTER_X86; }
 
-  uint32_t  getSP() const          { return _registers.__esp; }
-  void      setSP(uint32_t value)  { _registers.__esp = value; }
-  uint32_t  getIP() const          { return _registers.__eip; }
-  void      setIP(uint32_t value)  { _registers.__eip = value; }
-  uint32_t  getEBP() const         { return _registers.__ebp; }
-  void      setEBP(uint32_t value) { _registers.__ebp = value; }
-  uint32_t  getEBX() const         { return _registers.__ebx; }
-  void      setEBX(uint32_t value) { _registers.__ebx = value; }
-  uint32_t  getECX() const         { return _registers.__ecx; }
-  void      setECX(uint32_t value) { _registers.__ecx = value; }
-  uint32_t  getEDX() const         { return _registers.__edx; }
-  void      setEDX(uint32_t value) { _registers.__edx = value; }
-  uint32_t  getESI() const         { return _registers.__esi; }
-  void      setESI(uint32_t value) { _registers.__esi = value; }
-  uint32_t  getEDI() const         { return _registers.__edi; }
-  void      setEDI(uint32_t value) { _registers.__edi = value; }
+  std::uint32_t  getSP() const          { return _registers.__esp; }
+  void      setSP(std::uint32_t value)  { _registers.__esp = value; }
+  std::uint32_t  getIP() const          { return _registers.__eip; }
+  void      setIP(std::uint32_t value)  { _registers.__eip = value; }
+  std::uint32_t  getEBP() const         { return _registers.__ebp; }
+  void      setEBP(std::uint32_t value) { _registers.__ebp = value; }
+  std::uint32_t  getEBX() const         { return _registers.__ebx; }
+  void      setEBX(std::uint32_t value) { _registers.__ebx = value; }
+  std::uint32_t  getECX() const         { return _registers.__ecx; }
+  void      setECX(std::uint32_t value) { _registers.__ecx = value; }
+  std::uint32_t  getEDX() const         { return _registers.__edx; }
+  void      setEDX(std::uint32_t value) { _registers.__edx = value; }
+  std::uint32_t  getESI() const         { return _registers.__esi; }
+  void      setESI(std::uint32_t value) { _registers.__esi = value; }
+  std::uint32_t  getEDI() const         { return _registers.__edi; }
+  void      setEDI(std::uint32_t value) { _registers.__edi = value; }
 
 private:
   struct GPRs {
@@ -108,7 +108,7 @@ inline bool Registers_x86::validRegister(int regNum) const {
   return true;
 }
 
-inline uint32_t Registers_x86::getRegister(int regNum) const {
+inline std::uint32_t Registers_x86::getRegister(int regNum) const {
   switch (regNum) {
   case UNW_REG_IP:
     return _registers.__eip;
@@ -142,7 +142,7 @@ inline uint32_t Registers_x86::getRegister(int regNum) const {
   _LIBUNWIND_ABORT("unsupported x86 register");
 }
 
-inline void Registers_x86::setRegister(int regNum, uint32_t value) {
+inline void Registers_x86::setRegister(int regNum, std::uint32_t value) {
   switch (regNum) {
   case UNW_REG_IP:
     _registers.__eip = value;
@@ -240,8 +240,8 @@ public:
   Registers_x86_64(const void *registers);
 
   bool        validRegister(int num) const;
-  uint64_t    getRegister(int num) const;
-  void        setRegister(int num, uint64_t value);
+  std::uint64_t    getRegister(int num) const;
+  void        setRegister(int num, std::uint64_t value);
   bool        validFloatRegister(int) const { return false; }
   double      getFloatRegister(int num) const;
   void        setFloatRegister(int num, double value);
@@ -252,48 +252,48 @@ public:
   void        jumpto();
   static int  lastDwarfRegNum() { return _LIBUNWIND_HIGHEST_DWARF_REGISTER_X86_64; }
 
-  uint64_t  getSP() const          { return _registers.__rsp; }
-  void      setSP(uint64_t value)  { _registers.__rsp = value; }
-  uint64_t  getIP() const          { return _registers.__rip; }
-  void      setIP(uint64_t value)  { _registers.__rip = value; }
-  uint64_t  getRBP() const         { return _registers.__rbp; }
-  void      setRBP(uint64_t value) { _registers.__rbp = value; }
-  uint64_t  getRBX() const         { return _registers.__rbx; }
-  void      setRBX(uint64_t value) { _registers.__rbx = value; }
-  uint64_t  getR12() const         { return _registers.__r12; }
-  void      setR12(uint64_t value) { _registers.__r12 = value; }
-  uint64_t  getR13() const         { return _registers.__r13; }
-  void      setR13(uint64_t value) { _registers.__r13 = value; }
-  uint64_t  getR14() const         { return _registers.__r14; }
-  void      setR14(uint64_t value) { _registers.__r14 = value; }
-  uint64_t  getR15() const         { return _registers.__r15; }
-  void      setR15(uint64_t value) { _registers.__r15 = value; }
+  std::uint64_t  getSP() const          { return _registers.__rsp; }
+  void      setSP(std::uint64_t value)  { _registers.__rsp = value; }
+  std::uint64_t  getIP() const          { return _registers.__rip; }
+  void      setIP(std::uint64_t value)  { _registers.__rip = value; }
+  std::uint64_t  getRBP() const         { return _registers.__rbp; }
+  void      setRBP(std::uint64_t value) { _registers.__rbp = value; }
+  std::uint64_t  getRBX() const         { return _registers.__rbx; }
+  void      setRBX(std::uint64_t value) { _registers.__rbx = value; }
+  std::uint64_t  getR12() const         { return _registers.__r12; }
+  void      setR12(std::uint64_t value) { _registers.__r12 = value; }
+  std::uint64_t  getR13() const         { return _registers.__r13; }
+  void      setR13(std::uint64_t value) { _registers.__r13 = value; }
+  std::uint64_t  getR14() const         { return _registers.__r14; }
+  void      setR14(std::uint64_t value) { _registers.__r14 = value; }
+  std::uint64_t  getR15() const         { return _registers.__r15; }
+  void      setR15(std::uint64_t value) { _registers.__r15 = value; }
 
 private:
   struct GPRs {
-    uint64_t __rax;
-    uint64_t __rbx;
-    uint64_t __rcx;
-    uint64_t __rdx;
-    uint64_t __rdi;
-    uint64_t __rsi;
-    uint64_t __rbp;
-    uint64_t __rsp;
-    uint64_t __r8;
-    uint64_t __r9;
-    uint64_t __r10;
-    uint64_t __r11;
-    uint64_t __r12;
-    uint64_t __r13;
-    uint64_t __r14;
-    uint64_t __r15;
-    uint64_t __rip;
-    uint64_t __rflags;
-    uint64_t __cs;
-    uint64_t __fs;
-    uint64_t __gs;
+    std::uint64_t __rax;
+    std::uint64_t __rbx;
+    std::uint64_t __rcx;
+    std::uint64_t __rdx;
+    std::uint64_t __rdi;
+    std::uint64_t __rsi;
+    std::uint64_t __rbp;
+    std::uint64_t __rsp;
+    std::uint64_t __r8;
+    std::uint64_t __r9;
+    std::uint64_t __r10;
+    std::uint64_t __r11;
+    std::uint64_t __r12;
+    std::uint64_t __r13;
+    std::uint64_t __r14;
+    std::uint64_t __r15;
+    std::uint64_t __rip;
+    std::uint64_t __rflags;
+    std::uint64_t __cs;
+    std::uint64_t __fs;
+    std::uint64_t __gs;
 #if defined(_WIN64)
-    uint64_t __padding; // 16-byte align
+    std::uint64_t __padding; // 16-byte align
 #endif
   };
   GPRs _registers;
@@ -305,11 +305,11 @@ private:
 inline Registers_x86_64::Registers_x86_64(const void *registers) {
   static_assert((check_fit<Registers_x86_64, unw_context_t>::does_fit),
                 "x86_64 registers do not fit into unw_context_t");
-  memcpy(&_registers, registers, sizeof(_registers));
+  std::memcpy(&_registers, registers, sizeof(_registers));
 }
 
 inline Registers_x86_64::Registers_x86_64() {
-  memset(&_registers, 0, sizeof(_registers));
+	std::memset(&_registers, 0, sizeof(_registers));
 }
 
 inline bool Registers_x86_64::validRegister(int regNum) const {
@@ -324,7 +324,7 @@ inline bool Registers_x86_64::validRegister(int regNum) const {
   return true;
 }
 
-inline uint64_t Registers_x86_64::getRegister(int regNum) const {
+inline std::uint64_t Registers_x86_64::getRegister(int regNum) const {
   switch (regNum) {
   case UNW_REG_IP:
     return _registers.__rip;
@@ -366,7 +366,7 @@ inline uint64_t Registers_x86_64::getRegister(int regNum) const {
   _LIBUNWIND_ABORT("unsupported x86_64 register");
 }
 
-inline void Registers_x86_64::setRegister(int regNum, uint64_t value) {
+inline void Registers_x86_64::setRegister(int regNum, std::uint64_t value) {
   switch (regNum) {
   case UNW_REG_IP:
     _registers.__rip = value;
@@ -550,8 +550,8 @@ public:
   Registers_ppc(const void *registers);
 
   bool        validRegister(int num) const;
-  uint32_t    getRegister(int num) const;
-  void        setRegister(int num, uint32_t value);
+  std::uint32_t    getRegister(int num) const;
+  void        setRegister(int num, std::uint32_t value);
   bool        validFloatRegister(int num) const;
   double      getFloatRegister(int num) const;
   void        setFloatRegister(int num, double value);
@@ -562,10 +562,10 @@ public:
   void        jumpto();
   static int  lastDwarfRegNum() { return _LIBUNWIND_HIGHEST_DWARF_REGISTER_PPC; }
 
-  uint64_t  getSP() const         { return _registers.__r1; }
-  void      setSP(uint32_t value) { _registers.__r1 = value; }
-  uint64_t  getIP() const         { return _registers.__srr0; }
-  void      setIP(uint32_t value) { _registers.__srr0 = value; }
+  std::uint64_t  getSP() const         { return _registers.__r1; }
+  void      setSP(std::uint32_t value) { _registers.__r1 = value; }
+  std::uint64_t  getIP() const         { return _registers.__srr0; }
+  void      setIP(std::uint32_t value) { _registers.__srr0 = value; }
 
 private:
   struct ppc_thread_state_t {
@@ -669,7 +669,7 @@ inline bool Registers_ppc::validRegister(int regNum) const {
   return false;
 }
 
-inline uint32_t Registers_ppc::getRegister(int regNum) const {
+inline std::uint32_t Registers_ppc::getRegister(int regNum) const {
   switch (regNum) {
   case UNW_REG_IP:
     return _registers.__srr0;
@@ -763,7 +763,7 @@ inline uint32_t Registers_ppc::getRegister(int regNum) const {
   _LIBUNWIND_ABORT("unsupported ppc register");
 }
 
-inline void Registers_ppc::setRegister(int regNum, uint32_t value) {
+inline void Registers_ppc::setRegister(int regNum, std::uint32_t value) {
   //fprintf(stderr, "Registers_ppc::setRegister(%d, 0x%08X)\n", regNum, value);
   switch (regNum) {
   case UNW_REG_IP:
@@ -1116,8 +1116,8 @@ public:
   Registers_arm64(const void *registers);
 
   bool        validRegister(int num) const;
-  uint64_t    getRegister(int num) const;
-  void        setRegister(int num, uint64_t value);
+  std::uint64_t    getRegister(int num) const;
+  void        setRegister(int num, std::uint64_t value);
   bool        validFloatRegister(int num) const;
   double      getFloatRegister(int num) const;
   void        setFloatRegister(int num, double value);
@@ -1128,21 +1128,21 @@ public:
   void        jumpto();
   static int  lastDwarfRegNum() { return _LIBUNWIND_HIGHEST_DWARF_REGISTER_ARM64; }
 
-  uint64_t  getSP() const         { return _registers.__sp; }
-  void      setSP(uint64_t value) { _registers.__sp = value; }
-  uint64_t  getIP() const         { return _registers.__pc; }
-  void      setIP(uint64_t value) { _registers.__pc = value; }
-  uint64_t  getFP() const         { return _registers.__fp; }
-  void      setFP(uint64_t value) { _registers.__fp = value; }
+  std::uint64_t  getSP() const         { return _registers.__sp; }
+  void      setSP(std::uint64_t value) { _registers.__sp = value; }
+  std::uint64_t  getIP() const         { return _registers.__pc; }
+  void      setIP(std::uint64_t value) { _registers.__pc = value; }
+  std::uint64_t  getFP() const         { return _registers.__fp; }
+  void      setFP(std::uint64_t value) { _registers.__fp = value; }
 
 private:
   struct GPRs {
-    uint64_t __x[29]; // x0-x28
-    uint64_t __fp;    // Frame pointer x29
-    uint64_t __lr;    // Link register x30
-    uint64_t __sp;    // Stack pointer x31
-    uint64_t __pc;    // Program counter
-    uint64_t padding; // 16-byte align
+    std::uint64_t __x[29]; // x0-x28
+    std::uint64_t __fp;    // Frame pointer x29
+    std::uint64_t __lr;    // Link register x30
+    std::uint64_t __sp;    // Stack pointer x31
+    std::uint64_t __pc;    // Program counter
+    std::uint64_t padding; // 16-byte align
   };
 
   GPRs    _registers;
@@ -1183,7 +1183,7 @@ inline bool Registers_arm64::validRegister(int regNum) const {
   return true;
 }
 
-inline uint64_t Registers_arm64::getRegister(int regNum) const {
+inline std::uint64_t Registers_arm64::getRegister(int regNum) const {
   if (regNum == UNW_REG_IP)
     return _registers.__pc;
   if (regNum == UNW_REG_SP)
@@ -1193,7 +1193,7 @@ inline uint64_t Registers_arm64::getRegister(int regNum) const {
   _LIBUNWIND_ABORT("unsupported arm64 register");
 }
 
-inline void Registers_arm64::setRegister(int regNum, uint64_t value) {
+inline void Registers_arm64::setRegister(int regNum, std::uint64_t value) {
   if (regNum == UNW_REG_IP)
     _registers.__pc = value;
   else if (regNum == UNW_REG_SP)
@@ -1386,8 +1386,8 @@ public:
   Registers_arm(const void *registers);
 
   bool        validRegister(int num) const;
-  uint32_t    getRegister(int num) const;
-  void        setRegister(int num, uint32_t value);
+  std::uint32_t    getRegister(int num) const;
+  void        setRegister(int num, std::uint32_t value);
   bool        validFloatRegister(int num) const;
   unw_fpreg_t getFloatRegister(int num);
   void        setFloatRegister(int num, unw_fpreg_t value);
@@ -1401,10 +1401,10 @@ public:
   }
   static int  lastDwarfRegNum() { return _LIBUNWIND_HIGHEST_DWARF_REGISTER_ARM; }
 
-  uint32_t  getSP() const         { return _registers.__sp; }
-  void      setSP(uint32_t value) { _registers.__sp = value; }
-  uint32_t  getIP() const         { return _registers.__pc; }
-  void      setIP(uint32_t value) { _registers.__pc = value; }
+  std::uint32_t  getSP() const         { return _registers.__sp; }
+  void      setSP(std::uint32_t value) { _registers.__sp = value; }
+  std::uint32_t  getIP() const         { return _registers.__pc; }
+  void      setIP(std::uint32_t value) { _registers.__pc = value; }
 
   void saveVFPAsX() {
     assert(_use_X_for_vfp_save || !_saved_vfp_d0_d15);
@@ -1430,10 +1430,10 @@ public:
 
 private:
   struct GPRs {
-    uint32_t __r[13]; // r0-r12
-    uint32_t __sp;    // Stack pointer r13
-    uint32_t __lr;    // Link register r14
-    uint32_t __pc;    // Program counter r15
+    std::uint32_t __r[13]; // r0-r12
+    std::uint32_t __sp;    // Stack pointer r13
+    std::uint32_t __lr;    // Link register r14
+    std::uint32_t __pc;    // Program counter r15
   };
 
   static void saveVFPWithFSTMD(unw_fpreg_t*);
@@ -1444,9 +1444,9 @@ private:
   static void restoreVFPv3(unw_fpreg_t*);
 #if defined(__ARM_WMMX)
   static void saveiWMMX(unw_fpreg_t*);
-  static void saveiWMMXControl(uint32_t*);
+  static void saveiWMMXControl(std::uint32_t*);
   static void restoreiWMMX(unw_fpreg_t*);
-  static void restoreiWMMXControl(uint32_t*);
+  static void restoreiWMMXControl(std::uint32_t*);
 #endif
   void restoreCoreAndJumpTo();
 
@@ -1477,7 +1477,7 @@ private:
   // iWMMX registers
   unw_fpreg_t _iwmmx[16];
   // iWMMX control registers
-  mutable uint32_t _iwmmx_control[4];
+  mutable std::uint32_t _iwmmx_control[4];
 #endif
 };
 
@@ -1534,7 +1534,7 @@ inline bool Registers_arm::validRegister(int regNum) const {
   return false;
 }
 
-inline uint32_t Registers_arm::getRegister(int regNum) const {
+inline std::uint32_t Registers_arm::getRegister(int regNum) const {
   if (regNum == UNW_REG_SP || regNum == UNW_ARM_SP)
     return _registers.__sp;
 
@@ -1560,7 +1560,7 @@ inline uint32_t Registers_arm::getRegister(int regNum) const {
   _LIBUNWIND_ABORT("unsupported arm register");
 }
 
-inline void Registers_arm::setRegister(int regNum, uint32_t value) {
+inline void Registers_arm::setRegister(int regNum, std::uint32_t value) {
   if (regNum == UNW_REG_SP || regNum == UNW_ARM_SP) {
     _registers.__sp = value;
     return;
@@ -1866,8 +1866,8 @@ public:
   Registers_or1k(const void *registers);
 
   bool        validRegister(int num) const;
-  uint32_t    getRegister(int num) const;
-  void        setRegister(int num, uint32_t value);
+  std::uint32_t    getRegister(int num) const;
+  void        setRegister(int num, std::uint32_t value);
   bool        validFloatRegister(int num) const;
   double      getFloatRegister(int num) const;
   void        setFloatRegister(int num, double value);
@@ -1878,10 +1878,10 @@ public:
   void        jumpto();
   static int  lastDwarfRegNum() { return _LIBUNWIND_HIGHEST_DWARF_REGISTER_OR1K; }
 
-  uint64_t  getSP() const         { return _registers.__r[1]; }
-  void      setSP(uint32_t value) { _registers.__r[1] = value; }
-  uint64_t  getIP() const         { return _registers.__r[9]; }
-  void      setIP(uint32_t value) { _registers.__r[9] = value; }
+  std::uint64_t  getSP() const         { return _registers.__r[1]; }
+  void      setSP(std::uint32_t value) { _registers.__r[1] = value; }
+  std::uint64_t  getIP() const         { return _registers.__r[9]; }
+  void      setIP(std::uint32_t value) { _registers.__r[9] = value; }
 
 private:
   struct or1k_thread_state_t {
@@ -1914,7 +1914,7 @@ inline bool Registers_or1k::validRegister(int regNum) const {
   return false;
 }
 
-inline uint32_t Registers_or1k::getRegister(int regNum) const {
+inline std::uint32_t Registers_or1k::getRegister(int regNum) const {
   if (regNum >= UNW_OR1K_R0 && regNum <= UNW_OR1K_R31)
     return _registers.__r[regNum - UNW_OR1K_R0];
 
@@ -1927,7 +1927,7 @@ inline uint32_t Registers_or1k::getRegister(int regNum) const {
   _LIBUNWIND_ABORT("unsupported or1k register");
 }
 
-inline void Registers_or1k::setRegister(int regNum, uint32_t value) {
+inline void Registers_or1k::setRegister(int regNum, std::uint32_t value) {
   if (regNum >= UNW_OR1K_R0 && regNum <= UNW_OR1K_R31) {
     _registers.__r[regNum - UNW_OR1K_R0] = value;
     return;

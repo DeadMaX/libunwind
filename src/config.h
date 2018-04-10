@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <iostream>
 
 // Define static_assert() unless already defined by compiler.
 #ifndef __has_feature
@@ -81,12 +82,10 @@
     abort();                                                                   \
   } while (0)
 #else
-#define _LIBUNWIND_ABORT(msg)                                                  \
+#define _LIBUNWIND_ABORT(...)                                                  \
   do {                                                                         \
-    fprintf(stderr, "libunwind: %s %s:%d - %s\n", __func__, __FILE__,          \
-            __LINE__, msg);                                                    \
-    fflush(stderr);                                                            \
-    abort();                                                                   \
+    std::cerr << "libunwind: " << __func__ << ' ' << __FILE__ << ':' << __LINE__ << " - " << __VA_ARGS__ << '\n'; \
+    std::abort();                                                                   \
   } while (0)
 #endif
 
@@ -94,7 +93,7 @@
 #define _LIBUNWIND_LOG(msg, ...)
 #else
 #define _LIBUNWIND_LOG(msg, ...)                                               \
-  fprintf(stderr, "libunwind: " msg "\n", __VA_ARGS__)
+  std::cerr << "libunwind: " << msg << "\n" << __VA_ARGS__;
 #endif
 
 #if defined(NDEBUG)
@@ -142,7 +141,7 @@
   #define _LIBUNWIND_TRACE_DWARF(...)                                          \
     do {                                                                       \
       if (logDWARF())                                                          \
-        fprintf(stderr, __VA_ARGS__);                                          \
+        std::cerr << __VA_ARGS__;                                              \
     } while (0)
 #endif
 

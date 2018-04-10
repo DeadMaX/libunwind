@@ -31,37 +31,37 @@ public:
   /// Information encoded in the EH frame header.
   struct EHHeaderInfo {
     pint_t eh_frame_ptr;
-    size_t fde_count;
+    std::size_t fde_count;
     pint_t table;
-    uint8_t table_enc;
+    std::uint8_t table_enc;
   };
 
   static void decodeEHHdr(A &addressSpace, pint_t ehHdrStart, pint_t ehHdrEnd,
                           EHHeaderInfo &ehHdrInfo);
   static bool findFDE(A &addressSpace, pint_t pc, pint_t ehHdrStart,
-                      uint32_t sectionLength,
+                      std::uint32_t sectionLength,
                       typename CFI_Parser<A>::FDE_Info *fdeInfo,
                       typename CFI_Parser<A>::CIE_Info *cieInfo);
 
 private:
   static bool decodeTableEntry(A &addressSpace, pint_t &tableEntry,
                                pint_t ehHdrStart, pint_t ehHdrEnd,
-                               uint8_t tableEnc,
+                               std::uint8_t tableEnc,
                                typename CFI_Parser<A>::FDE_Info *fdeInfo,
                                typename CFI_Parser<A>::CIE_Info *cieInfo);
-  static size_t getTableEntrySize(uint8_t tableEnc);
+  static std::size_t getTableEntrySize(std::uint8_t tableEnc);
 };
 
 template <typename A>
 void EHHeaderParser<A>::decodeEHHdr(A &addressSpace, pint_t ehHdrStart,
                                     pint_t ehHdrEnd, EHHeaderInfo &ehHdrInfo) {
   pint_t p = ehHdrStart;
-  uint8_t version = addressSpace.get8(p++);
+  std::uint8_t version = addressSpace.get8(p++);
   if (version != 1)
     _LIBUNWIND_ABORT("Unsupported .eh_frame_hdr version");
 
-  uint8_t eh_frame_ptr_enc = addressSpace.get8(p++);
-  uint8_t fde_count_enc = addressSpace.get8(p++);
+  std::uint8_t eh_frame_ptr_enc = addressSpace.get8(p++);
+  std::uint8_t fde_count_enc = addressSpace.get8(p++);
   ehHdrInfo.table_enc = addressSpace.get8(p++);
 
   ehHdrInfo.eh_frame_ptr =
@@ -76,7 +76,7 @@ void EHHeaderParser<A>::decodeEHHdr(A &addressSpace, pint_t ehHdrStart,
 template <typename A>
 bool EHHeaderParser<A>::decodeTableEntry(
     A &addressSpace, pint_t &tableEntry, pint_t ehHdrStart, pint_t ehHdrEnd,
-    uint8_t tableEnc, typename CFI_Parser<A>::FDE_Info *fdeInfo,
+    std::uint8_t tableEnc, typename CFI_Parser<A>::FDE_Info *fdeInfo,
     typename CFI_Parser<A>::CIE_Info *cieInfo) {
   // Have to decode the whole FDE for the PC range anyway, so just throw away
   // the PC start.
@@ -85,7 +85,7 @@ bool EHHeaderParser<A>::decodeTableEntry(
       addressSpace.getEncodedP(tableEntry, ehHdrEnd, tableEnc, ehHdrStart);
   const char *message =
       CFI_Parser<A>::decodeFDE(addressSpace, fde, fdeInfo, cieInfo);
-  if (message != NULL) {
+  if (message != nullptr) {
     _LIBUNWIND_DEBUG_LOG("EHHeaderParser::decodeTableEntry: bad fde: %s",
                          message);
     return false;
@@ -96,7 +96,7 @@ bool EHHeaderParser<A>::decodeTableEntry(
 
 template <typename A>
 bool EHHeaderParser<A>::findFDE(A &addressSpace, pint_t pc, pint_t ehHdrStart,
-                                uint32_t sectionLength,
+                                std::uint32_t sectionLength,
                                 typename CFI_Parser<A>::FDE_Info *fdeInfo,
                                 typename CFI_Parser<A>::CIE_Info *cieInfo) {
   pint_t ehHdrEnd = ehHdrStart + sectionLength;
@@ -104,12 +104,12 @@ bool EHHeaderParser<A>::findFDE(A &addressSpace, pint_t pc, pint_t ehHdrStart,
   EHHeaderParser<A>::EHHeaderInfo hdrInfo;
   EHHeaderParser<A>::decodeEHHdr(addressSpace, ehHdrStart, ehHdrEnd, hdrInfo);
 
-  size_t tableEntrySize = getTableEntrySize(hdrInfo.table_enc);
+  std::size_t tableEntrySize = getTableEntrySize(hdrInfo.table_enc);
   pint_t tableEntry;
 
-  size_t low = 0;
-  for (size_t len = hdrInfo.fde_count; len > 1;) {
-    size_t mid = low + (len / 2);
+  std::size_t low = 0;
+  for (std::size_t len = hdrInfo.fde_count; len > 1;) {
+    std::size_t mid = low + (len / 2);
     tableEntry = hdrInfo.table + mid * tableEntrySize;
     pint_t start = addressSpace.getEncodedP(tableEntry, ehHdrEnd,
                                             hdrInfo.table_enc, ehHdrStart);
@@ -136,7 +136,7 @@ bool EHHeaderParser<A>::findFDE(A &addressSpace, pint_t pc, pint_t ehHdrStart,
 }
 
 template <typename A>
-size_t EHHeaderParser<A>::getTableEntrySize(uint8_t tableEnc) {
+std::size_t EHHeaderParser<A>::getTableEntrySize(std::uint8_t tableEnc) {
   switch (tableEnc & 0x0f) {
   case DW_EH_PE_sdata2:
   case DW_EH_PE_udata2:
