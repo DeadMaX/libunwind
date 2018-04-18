@@ -38,6 +38,8 @@ namespace libunwind {
 
 #if defined(_LIBUNWIND_SUPPORT_DWARF_UNWIND)
 /// Cache of recently found FDEs.
+
+#ifndef LIBUNWIND_STANDFREE
 template <typename A>
 class _LIBUNWIND_HIDDEN DwarfFDECache {
   typedef typename A::pint_t pint_t;
@@ -117,8 +119,8 @@ void DwarfFDECache<A>::add(pint_t mh, pint_t ip_start, pint_t ip_end,
 #if !defined(_LIBUNWIND_NO_HEAP)
   _LIBUNWIND_LOG_IF_FALSE(_lock.lock());
   if (_bufferUsed >= _bufferEnd) {
-    size_t oldSize = (size_t)(_bufferEnd - _buffer);
-    size_t newSize = oldSize * 4;
+    std::size_t oldSize = (std::size_t)(_bufferEnd - _buffer);
+    std::size_t newSize = oldSize * 4;
     // Can't use operator new (we are below it).
     entry *newBuffer = (entry *)malloc(newSize * sizeof(entry));
     memcpy(newBuffer, _buffer, oldSize * sizeof(entry));
@@ -174,10 +176,11 @@ void DwarfFDECache<A>::iterateCacheEntries(void (*func)(
   }
   _LIBUNWIND_LOG_IF_FALSE(_lock.unlock());
 }
+#endif // LIBUNWIND_STANDFREE
 #endif // defined(_LIBUNWIND_SUPPORT_DWARF_UNWIND)
 
 
-#define arrayoffsetof(type, index, field) ((size_t)(&((type *)0)[index].field))
+#define arrayoffsetof(type, index, field) ((std::size_t)(&((type *)0)[index].field))
 
 #if defined(_LIBUNWIND_SUPPORT_COMPACT_UNWIND)
 template <typename A> class UnwindSectionHeader {
@@ -185,32 +188,32 @@ public:
   UnwindSectionHeader(A &addressSpace, typename A::pint_t addr)
       : _addressSpace(addressSpace), _addr(addr) {}
 
-  uint32_t version() const {
+  std::uint32_t version() const {
     return _addressSpace.get32(_addr +
                                offsetof(unwind_info_section_header, version));
   }
-  uint32_t commonEncodingsArraySectionOffset() const {
+  std::uint32_t commonEncodingsArraySectionOffset() const {
     return _addressSpace.get32(_addr +
                                offsetof(unwind_info_section_header,
                                         commonEncodingsArraySectionOffset));
   }
-  uint32_t commonEncodingsArrayCount() const {
+  std::uint32_t commonEncodingsArrayCount() const {
     return _addressSpace.get32(_addr + offsetof(unwind_info_section_header,
                                                 commonEncodingsArrayCount));
   }
-  uint32_t personalityArraySectionOffset() const {
+  std::uint32_t personalityArraySectionOffset() const {
     return _addressSpace.get32(_addr + offsetof(unwind_info_section_header,
                                                 personalityArraySectionOffset));
   }
-  uint32_t personalityArrayCount() const {
+  std::uint32_t personalityArrayCount() const {
     return _addressSpace.get32(
         _addr + offsetof(unwind_info_section_header, personalityArrayCount));
   }
-  uint32_t indexSectionOffset() const {
+  std::uint32_t indexSectionOffset() const {
     return _addressSpace.get32(
         _addr + offsetof(unwind_info_section_header, indexSectionOffset));
   }
-  uint32_t indexCount() const {
+  std::uint32_t indexCount() const {
     return _addressSpace.get32(
         _addr + offsetof(unwind_info_section_header, indexCount));
   }
@@ -225,17 +228,17 @@ public:
   UnwindSectionIndexArray(A &addressSpace, typename A::pint_t addr)
       : _addressSpace(addressSpace), _addr(addr) {}
 
-  uint32_t functionOffset(uint32_t index) const {
+  std::uint32_t functionOffset(std::uint32_t index) const {
     return _addressSpace.get32(
         _addr + arrayoffsetof(unwind_info_section_header_index_entry, index,
                               functionOffset));
   }
-  uint32_t secondLevelPagesSectionOffset(uint32_t index) const {
+  std::uint32_t secondLevelPagesSectionOffset(std::uint32_t index) const {
     return _addressSpace.get32(
         _addr + arrayoffsetof(unwind_info_section_header_index_entry, index,
                               secondLevelPagesSectionOffset));
   }
-  uint32_t lsdaIndexArraySectionOffset(uint32_t index) const {
+  std::uint32_t lsdaIndexArraySectionOffset(std::uint32_t index) const {
     return _addressSpace.get32(
         _addr + arrayoffsetof(unwind_info_section_header_index_entry, index,
                               lsdaIndexArraySectionOffset));
@@ -251,7 +254,7 @@ public:
   UnwindSectionRegularPageHeader(A &addressSpace, typename A::pint_t addr)
       : _addressSpace(addressSpace), _addr(addr) {}
 
-  uint32_t kind() const {
+  std::uint32_t kind() const {
     return _addressSpace.get32(
         _addr + offsetof(unwind_info_regular_second_level_page_header, kind));
   }
@@ -276,12 +279,12 @@ public:
   UnwindSectionRegularArray(A &addressSpace, typename A::pint_t addr)
       : _addressSpace(addressSpace), _addr(addr) {}
 
-  uint32_t functionOffset(uint32_t index) const {
+  std::uint32_t functionOffset(std::uint32_t index) const {
     return _addressSpace.get32(
         _addr + arrayoffsetof(unwind_info_regular_second_level_entry, index,
                               functionOffset));
   }
-  uint32_t encoding(uint32_t index) const {
+  std::uint32_t encoding(std::uint32_t index) const {
     return _addressSpace.get32(
         _addr +
         arrayoffsetof(unwind_info_regular_second_level_entry, index, encoding));
@@ -297,7 +300,7 @@ public:
   UnwindSectionCompressedPageHeader(A &addressSpace, typename A::pint_t addr)
       : _addressSpace(addressSpace), _addr(addr) {}
 
-  uint32_t kind() const {
+  std::uint32_t kind() const {
     return _addressSpace.get32(
         _addr +
         offsetof(unwind_info_compressed_second_level_page_header, kind));
@@ -333,13 +336,13 @@ public:
   UnwindSectionCompressedArray(A &addressSpace, typename A::pint_t addr)
       : _addressSpace(addressSpace), _addr(addr) {}
 
-  uint32_t functionOffset(uint32_t index) const {
+  std::uint32_t functionOffset(std::uint32_t index) const {
     return UNWIND_INFO_COMPRESSED_ENTRY_FUNC_OFFSET(
-        _addressSpace.get32(_addr + index * sizeof(uint32_t)));
+        _addressSpace.get32(_addr + index * sizeof(std::uint32_t)));
   }
-  uint16_t encodingIndex(uint32_t index) const {
+  uint16_t encodingIndex(std::uint32_t index) const {
     return UNWIND_INFO_COMPRESSED_ENTRY_ENCODING_INDEX(
-        _addressSpace.get32(_addr + index * sizeof(uint32_t)));
+        _addressSpace.get32(_addr + index * sizeof(std::uint32_t)));
   }
 
 private:
@@ -352,12 +355,12 @@ public:
   UnwindSectionLsdaArray(A &addressSpace, typename A::pint_t addr)
       : _addressSpace(addressSpace), _addr(addr) {}
 
-  uint32_t functionOffset(uint32_t index) const {
+  std::uint32_t functionOffset(std::uint32_t index) const {
     return _addressSpace.get32(
         _addr + arrayoffsetof(unwind_info_section_header_lsda_index_entry,
                               index, functionOffset));
   }
-  uint32_t lsdaOffset(uint32_t index) const {
+  std::uint32_t lsdaOffset(std::uint32_t index) const {
     return _addressSpace.get32(
         _addr + arrayoffsetof(unwind_info_section_header_lsda_index_entry,
                               index, lsdaOffset));
@@ -373,7 +376,7 @@ class _LIBUNWIND_HIDDEN AbstractUnwindCursor {
 public:
   // NOTE: provide a class specific placement deallocation function (S5.3.4 p20)
   // This avoids an unnecessary dependency to libc++abi.
-  void operator delete(void *, size_t) {}
+  void operator delete(void *, std::size_t) {}
 
   virtual ~AbstractUnwindCursor() {}
   virtual bool validReg(int) { _LIBUNWIND_ABORT("validReg not implemented"); }
@@ -398,7 +401,7 @@ public:
   virtual bool isSignalFrame() {
     _LIBUNWIND_ABORT("isSignalFrame not implemented");
   }
-  virtual bool getFunctionName(char *, size_t, unw_word_t *) {
+  virtual bool getFunctionName(char *, std::size_t, unw_word_t *) {
     _LIBUNWIND_ABORT("getFunctionName not implemented");
   }
   virtual void setInfoBasedOnIPRegister(bool = false) {
@@ -431,7 +434,7 @@ public:
   virtual void        getInfo(unw_proc_info_t *);
   virtual void        jumpto();
   virtual bool        isSignalFrame();
-  virtual bool        getFunctionName(char *buf, size_t len, unw_word_t *off);
+  virtual bool        getFunctionName(char *buf, std::size_t len, unw_word_t *off);
   virtual void        setInfoBasedOnIPRegister(bool isReturnAddress = false);
   virtual const char *getRegisterName(int num);
 #ifdef __arm__
@@ -444,12 +447,12 @@ private:
   bool getInfoFromEHABISection(pint_t pc, const UnwindInfoSections &sects);
 
   int stepWithEHABI() {
-    size_t len = 0;
-    size_t off = 0;
+    std::size_t len = 0;
+    std::size_t off = 0;
     // FIXME: Calling decode_eht_entry() here is violating the libunwind
     // abstraction layer.
-    const uint32_t *ehtp =
-        decode_eht_entry(reinterpret_cast<const uint32_t *>(_info.unwind_info),
+    const std::uint32_t *ehtp =
+        decode_eht_entry(reinterpret_cast<const std::uint32_t *>(_info.unwind_info),
                          &off, &len);
     if (_Unwind_VRS_Interpret((_Unwind_Context *)this, ehtp, off, len) !=
             _URC_CONTINUE_UNWIND)
@@ -460,7 +463,7 @@ private:
 
 #if defined(_LIBUNWIND_SUPPORT_DWARF_UNWIND)
   bool getInfoFromDwarfSection(pint_t pc, const UnwindInfoSections &sects,
-                                            uint32_t fdeSectionOffsetHint=0);
+                                            std::uint32_t fdeSectionOffsetHint=0);
   int stepWithDwarfFDE() {
     return DwarfInstructions<A, R>::stepWithDwarf(_addressSpace,
                                               (pint_t)this->getReg(UNW_REG_IP),
@@ -491,7 +494,7 @@ private:
 #if defined(_LIBUNWIND_TARGET_I386)
   int stepWithCompactEncoding(Registers_x86 &) {
     return CompactUnwinder_x86<A>::stepWithCompactEncoding(
-        _info.format, (uint32_t)_info.start_ip, _addressSpace, _registers);
+        _info.format, (std::uint32_t)_info.start_ip, _addressSpace, _registers);
   }
 #endif
 
@@ -508,13 +511,13 @@ private:
   }
 #endif
 
-  bool compactSaysUseDwarf(uint32_t *offset=NULL) const {
+  bool compactSaysUseDwarf(std::uint32_t *offset=NULL) const {
     R dummy;
     return compactSaysUseDwarf(dummy, offset);
   }
 
 #if defined(_LIBUNWIND_TARGET_X86_64)
-  bool compactSaysUseDwarf(Registers_x86_64 &, uint32_t *offset) const {
+  bool compactSaysUseDwarf(Registers_x86_64 &, std::uint32_t *offset) const {
     if ((_info.format & UNWIND_X86_64_MODE_MASK) == UNWIND_X86_64_MODE_DWARF) {
       if (offset)
         *offset = (_info.format & UNWIND_X86_64_DWARF_SECTION_OFFSET);
@@ -525,7 +528,7 @@ private:
 #endif
 
 #if defined(_LIBUNWIND_TARGET_I386)
-  bool compactSaysUseDwarf(Registers_x86 &, uint32_t *offset) const {
+  bool compactSaysUseDwarf(Registers_x86 &, std::uint32_t *offset) const {
     if ((_info.format & UNWIND_X86_MODE_MASK) == UNWIND_X86_MODE_DWARF) {
       if (offset)
         *offset = (_info.format & UNWIND_X86_DWARF_SECTION_OFFSET);
@@ -536,13 +539,13 @@ private:
 #endif
 
 #if defined(_LIBUNWIND_TARGET_PPC)
-  bool compactSaysUseDwarf(Registers_ppc &, uint32_t *) const {
+  bool compactSaysUseDwarf(Registers_ppc &, std::uint32_t *) const {
     return true;
   }
 #endif
 
 #if defined(_LIBUNWIND_TARGET_AARCH64)
-  bool compactSaysUseDwarf(Registers_arm64 &, uint32_t *offset) const {
+  bool compactSaysUseDwarf(Registers_arm64 &, std::uint32_t *offset) const {
     if ((_info.format & UNWIND_ARM64_MODE_MASK) == UNWIND_ARM64_MODE_DWARF) {
       if (offset)
         *offset = (_info.format & UNWIND_ARM64_DWARF_SECTION_OFFSET);
@@ -674,8 +677,8 @@ template <typename A, typename R> bool UnwindCursor<A, R>::isSignalFrame() {
 
 #if defined(_LIBUNWIND_ARM_EHABI)
 struct EHABIIndexEntry {
-  uint32_t functionOffset;
-  uint32_t data;
+  std::uint32_t functionOffset;
+  std::uint32_t data;
 };
 
 template<typename A>
@@ -686,8 +689,8 @@ struct EHABISectionIterator {
   typedef typename A::pint_t value_type;
   typedef typename A::pint_t* pointer;
   typedef typename A::pint_t& reference;
-  typedef size_t size_type;
-  typedef size_t difference_type;
+  typedef std::size_t std::size_type;
+  typedef std::size_t difference_type;
 
   static _Self begin(A& addressSpace, const UnwindInfoSections& sects) {
     return _Self(addressSpace, sects, 0);
@@ -697,18 +700,18 @@ struct EHABISectionIterator {
                  sects.arm_section_length / sizeof(EHABIIndexEntry));
   }
 
-  EHABISectionIterator(A& addressSpace, const UnwindInfoSections& sects, size_t i)
+  EHABISectionIterator(A& addressSpace, const UnwindInfoSections& sects, std::size_t i)
       : _i(i), _addressSpace(&addressSpace), _sects(&sects) {}
 
   _Self& operator++() { ++_i; return *this; }
-  _Self& operator+=(size_t a) { _i += a; return *this; }
+  _Self& operator+=(std::size_t a) { _i += a; return *this; }
   _Self& operator--() { assert(_i > 0); --_i; return *this; }
-  _Self& operator-=(size_t a) { assert(_i >= a); _i -= a; return *this; }
+  _Self& operator-=(std::size_t a) { assert(_i >= a); _i -= a; return *this; }
 
-  _Self operator+(size_t a) { _Self out = *this; out._i += a; return out; }
-  _Self operator-(size_t a) { assert(_i >= a); _Self out = *this; out._i -= a; return out; }
+  _Self operator+(std::size_t a) { _Self out = *this; out._i += a; return out; }
+  _Self operator-(std::size_t a) { assert(_i >= a); _Self out = *this; out._i -= a; return out; }
 
-  size_t operator-(const _Self& other) { return _i - other._i; }
+  std::size_t operator-(const _Self& other) { return _i - other._i; }
 
   bool operator==(const _Self& other) const {
     assert(_addressSpace == other._addressSpace);
@@ -731,7 +734,7 @@ struct EHABISectionIterator {
   }
 
  private:
-  size_t _i;
+  std::size_t _i;
   A* _addressSpace;
   const UnwindInfoSections* _sects;
 };
@@ -764,7 +767,7 @@ bool UnwindCursor<A, R>::getInfoFromEHABISection(
   if (indexDataAddr == 0)
     return false;
 
-  uint32_t indexData = _addressSpace.get32(indexDataAddr);
+  std::uint32_t indexData = _addressSpace.get32(indexDataAddr);
   if (indexData == UNW_EXIDX_CANTUNWIND)
     return false;
 
@@ -772,7 +775,7 @@ bool UnwindCursor<A, R>::getInfoFromEHABISection(
   // the index table entry on the second word (aka |indexDataAddr|). Otherwise,
   // the table points at an offset in the exception handling table (section 5 EHABI).
   pint_t exceptionTableAddr;
-  uint32_t exceptionTableData;
+  std::uint32_t exceptionTableData;
   bool isSingleWordEHT;
   if (indexData & 0x80000000) {
     exceptionTableAddr = indexDataAddr;
@@ -797,8 +800,8 @@ bool UnwindCursor<A, R>::getInfoFromEHABISection(
   // in compact form (section 6.3 EHABI).
   if (exceptionTableData & 0x80000000) {
     // Grab the index of the personality routine from the compact form.
-    uint32_t choice = (exceptionTableData & 0x0f000000) >> 24;
-    uint32_t extraWords = 0;
+    std::uint32_t choice = (exceptionTableData & 0x0f000000) >> 24;
+    std::uint32_t extraWords = 0;
     switch (choice) {
       case 0:
         personalityRoutine = (unw_word_t) &__aeabi_unwind_cpp_pr0;
@@ -856,10 +859,10 @@ bool UnwindCursor<A, R>::getInfoFromEHABISection(
     // | +--------+--------+--------+-------+ |
     // +--------------------------------------+
 
-    uint32_t *UnwindData = reinterpret_cast<uint32_t*>(exceptionTableAddr) + 1;
-    uint32_t FirstDataWord = *UnwindData;
-    size_t N = ((FirstDataWord >> 24) & 0xff);
-    size_t NDataWords = N + 1;
+    std::uint32_t *UnwindData = reinterpret_cast<std::uint32_t*>(exceptionTableAddr) + 1;
+    std::uint32_t FirstDataWord = *UnwindData;
+    std::size_t N = ((FirstDataWord >> 24) & 0xff);
+    std::size_t NDataWords = N + 1;
     lsda = reinterpret_cast<uintptr_t>(UnwindData + NDataWords);
   }
 
@@ -879,15 +882,17 @@ bool UnwindCursor<A, R>::getInfoFromEHABISection(
 template <typename A, typename R>
 bool UnwindCursor<A, R>::getInfoFromDwarfSection(pint_t pc,
                                                 const UnwindInfoSections &sects,
-                                                uint32_t fdeSectionOffsetHint) {
+                                                std::uint32_t fdeSectionOffsetHint) {
   typename CFI_Parser<A>::FDE_Info fdeInfo;
   typename CFI_Parser<A>::CIE_Info cieInfo;
   bool foundFDE = false;
+#ifndef LIBUNWIND_STANDFREE
   bool foundInCache = false;
+#endif
   // If compact encoding table gave offset into dwarf section, go directly there
   if (fdeSectionOffsetHint != 0) {
     foundFDE = CFI_Parser<A>::findFDE(_addressSpace, pc, sects.dwarf_section,
-                                    (uint32_t)sects.dwarf_section_length,
+                                    (std::uint32_t)sects.dwarf_section_length,
                                     sects.dwarf_section + fdeSectionOffsetHint,
                                     &fdeInfo, &cieInfo);
   }
@@ -895,24 +900,26 @@ bool UnwindCursor<A, R>::getInfoFromDwarfSection(pint_t pc,
   if (!foundFDE && (sects.dwarf_index_section != 0)) {
     foundFDE = EHHeaderParser<A>::findFDE(
         _addressSpace, pc, sects.dwarf_index_section,
-        (uint32_t)sects.dwarf_index_section_length, &fdeInfo, &cieInfo);
+        (std::uint32_t)sects.dwarf_index_section_length, &fdeInfo, &cieInfo);
   }
 #endif
+#ifndef LIBUNWIND_STANDFREE
   if (!foundFDE) {
     // otherwise, search cache of previously found FDEs.
     pint_t cachedFDE = DwarfFDECache<A>::findFDE(sects.dso_base, pc);
     if (cachedFDE != 0) {
       foundFDE =
           CFI_Parser<A>::findFDE(_addressSpace, pc, sects.dwarf_section,
-                                 (uint32_t)sects.dwarf_section_length,
+                                 (std::uint32_t)sects.dwarf_section_length,
                                  cachedFDE, &fdeInfo, &cieInfo);
       foundInCache = foundFDE;
     }
   }
+#endif
   if (!foundFDE) {
     // Still not found, do full scan of __eh_frame section.
     foundFDE = CFI_Parser<A>::findFDE(_addressSpace, pc, sects.dwarf_section,
-                                      (uint32_t)sects.dwarf_section_length, 0,
+                                      (std::uint32_t)sects.dwarf_section_length, 0,
                                       &fdeInfo, &cieInfo);
   }
   if (foundFDE) {
@@ -928,11 +935,12 @@ bool UnwindCursor<A, R>::getInfoFromDwarfSection(pint_t pc,
       _info.flags             = 0;
       _info.format            = dwarfEncoding();
       _info.unwind_info       = fdeInfo.fdeStart;
-      _info.unwind_info_size  = (uint32_t)fdeInfo.fdeLength;
+      _info.unwind_info_size  = (std::uint32_t)fdeInfo.fdeLength;
       _info.extra             = (unw_word_t) sects.dso_base;
 
       // Add to cache (to make next lookup faster) if we had no hint
       // and there was no index.
+#ifndef LIBUNWIND_STANDFREE
       if (!foundInCache && (fdeSectionOffsetHint == 0)) {
   #if defined(_LIBUNWIND_SUPPORT_DWARF_INDEX)
         if (sects.dwarf_index_section == 0)
@@ -940,6 +948,7 @@ bool UnwindCursor<A, R>::getInfoFromDwarfSection(pint_t pc,
         DwarfFDECache<A>::add(sects.dso_base, fdeInfo.pcStart, fdeInfo.pcEnd,
                               fdeInfo.fdeStart);
       }
+#endif // LIBUNWIND_STANDFREE
       return true;
     }
   }
@@ -968,11 +977,11 @@ bool UnwindCursor<A, R>::getInfoFromCompactEncodingSection(pint_t pc,
   const UnwindSectionIndexArray<A> topIndex(_addressSpace,
                                            sects.compact_unwind_section
                                          + sectionHeader.indexSectionOffset());
-  uint32_t low = 0;
-  uint32_t high = sectionHeader.indexCount();
-  uint32_t last = high - 1;
+  std::uint32_t low = 0;
+  std::uint32_t high = sectionHeader.indexCount();
+  std::uint32_t last = high - 1;
   while (low < high) {
-    uint32_t mid = (low + high) / 2;
+    std::uint32_t mid = (low + high) / 2;
     //if ( log ) fprintf(stderr, "\tmid=%d, low=%d, high=%d, *mid=0x%08X\n",
     //mid, low, high, topIndex.functionOffset(mid));
     if (topIndex.functionOffset(mid) <= targetFunctionOffset) {
@@ -987,8 +996,8 @@ bool UnwindCursor<A, R>::getInfoFromCompactEncodingSection(pint_t pc,
       high = mid;
     }
   }
-  const uint32_t firstLevelFunctionOffset = topIndex.functionOffset(low);
-  const uint32_t firstLevelNextPageFunctionOffset =
+  const std::uint32_t firstLevelFunctionOffset = topIndex.functionOffset(low);
+  const std::uint32_t firstLevelNextPageFunctionOffset =
       topIndex.functionOffset(low + 1);
   const pint_t secondLevelAddr =
       sects.compact_unwind_section + topIndex.secondLevelPagesSectionOffset(low);
@@ -1001,12 +1010,12 @@ bool UnwindCursor<A, R>::getInfoFromCompactEncodingSection(pint_t pc,
                     "to secondLevelAddr=0x%llX\n",
                     low, (uint64_t) secondLevelAddr);
   // do a binary search of second level page index
-  uint32_t encoding = 0;
+  std::uint32_t encoding = 0;
   pint_t funcStart = 0;
   pint_t funcEnd = 0;
   pint_t lsda = 0;
   pint_t personality = 0;
-  uint32_t pageKind = _addressSpace.get32(secondLevelAddr);
+  std::uint32_t pageKind = _addressSpace.get32(secondLevelAddr);
   if (pageKind == UNWIND_SECOND_LEVEL_REGULAR) {
     // regular page
     UnwindSectionRegularPageHeader<A> pageHeader(_addressSpace,
@@ -1022,9 +1031,9 @@ bool UnwindCursor<A, R>::getInfoFromCompactEncodingSection(pint_t pc,
     low = 0;
     high = pageHeader.entryCount();
     while (low < high) {
-      uint32_t mid = (low + high) / 2;
+      std::uint32_t mid = (low + high) / 2;
       if (pageIndex.functionOffset(mid) <= targetFunctionOffset) {
-        if (mid == (uint32_t)(pageHeader.entryCount() - 1)) {
+        if (mid == (std::uint32_t)(pageHeader.entryCount() - 1)) {
           // at end of table
           low = mid;
           funcEnd = firstLevelNextPageFunctionOffset + sects.dso_base;
@@ -1065,8 +1074,8 @@ bool UnwindCursor<A, R>::getInfoFromCompactEncodingSection(pint_t pc,
                                                     secondLevelAddr);
     UnwindSectionCompressedArray<A> pageIndex(
         _addressSpace, secondLevelAddr + pageHeader.entryPageOffset());
-    const uint32_t targetFunctionPageOffset =
-        (uint32_t)(targetFunctionOffset - firstLevelFunctionOffset);
+    const std::uint32_t targetFunctionPageOffset =
+        (std::uint32_t)(targetFunctionOffset - firstLevelFunctionOffset);
     // binary search looks for entry with e where index[e].offset <= pc <
     // index[e+1].offset
     if (log)
@@ -1077,7 +1086,7 @@ bool UnwindCursor<A, R>::getInfoFromCompactEncodingSection(pint_t pc,
     last = pageHeader.entryCount() - 1;
     high = pageHeader.entryCount();
     while (low < high) {
-      uint32_t mid = (low + high) / 2;
+      std::uint32_t mid = (low + high) / 2;
       if (pageIndex.functionOffset(mid) <= targetFunctionPageOffset) {
         if ((mid == last) ||
             (pageIndex.functionOffset(mid + 1) > targetFunctionPageOffset)) {
@@ -1116,14 +1125,14 @@ bool UnwindCursor<A, R>::getInfoFromCompactEncodingSection(pint_t pc,
       encoding = _addressSpace.get32(
           sects.compact_unwind_section +
           sectionHeader.commonEncodingsArraySectionOffset() +
-          encodingIndex * sizeof(uint32_t));
+          encodingIndex * sizeof(std::uint32_t));
     } else {
       // encoding is in page specific table
       uint16_t pageEncodingIndex =
           encodingIndex - (uint16_t)sectionHeader.commonEncodingsArrayCount();
       encoding = _addressSpace.get32(secondLevelAddr +
                                      pageHeader.encodingsPageOffset() +
-                                     pageEncodingIndex * sizeof(uint32_t));
+                                     pageEncodingIndex * sizeof(std::uint32_t));
     }
   } else {
     _LIBUNWIND_DEBUG_LOG("malformed __unwind_info at 0x%0llX bad second "
@@ -1135,9 +1144,9 @@ bool UnwindCursor<A, R>::getInfoFromCompactEncodingSection(pint_t pc,
   // look up LSDA, if encoding says function has one
   if (encoding & UNWIND_HAS_LSDA) {
     UnwindSectionLsdaArray<A> lsdaIndex(_addressSpace, lsdaArrayStartAddr);
-    uint32_t funcStartOffset = (uint32_t)(funcStart - sects.dso_base);
+    std::uint32_t funcStartOffset = (std::uint32_t)(funcStart - sects.dso_base);
     low = 0;
-    high = (uint32_t)(lsdaArrayEndAddr - lsdaArrayStartAddr) /
+    high = (std::uint32_t)(lsdaArrayEndAddr - lsdaArrayStartAddr) /
                     sizeof(unwind_info_section_header_lsda_index_entry);
     // binary search looks for entry with exact match for functionOffset
     if (log)
@@ -1145,7 +1154,7 @@ bool UnwindCursor<A, R>::getInfoFromCompactEncodingSection(pint_t pc,
               "\tbinary search of lsda table for targetFunctionOffset=0x%08X\n",
               funcStartOffset);
     while (low < high) {
-      uint32_t mid = (low + high) / 2;
+      std::uint32_t mid = (low + high) / 2;
       if (lsdaIndex.functionOffset(mid) == funcStartOffset) {
         lsda = lsdaIndex.lsdaOffset(mid) + sects.dso_base;
         break;
@@ -1164,7 +1173,7 @@ bool UnwindCursor<A, R>::getInfoFromCompactEncodingSection(pint_t pc,
   }
 
   // extact personality routine, if encoding says function has one
-  uint32_t personalityIndex = (encoding & UNWIND_PERSONALITY_MASK) >>
+  std::uint32_t personalityIndex = (encoding & UNWIND_PERSONALITY_MASK) >>
                               (__builtin_ctz(UNWIND_PERSONALITY_MASK));
   if (personalityIndex != 0) {
     --personalityIndex; // change 1-based to zero-based index
@@ -1178,7 +1187,7 @@ bool UnwindCursor<A, R>::getInfoFromCompactEncodingSection(pint_t pc,
     int32_t personalityDelta = (int32_t)_addressSpace.get32(
         sects.compact_unwind_section +
         sectionHeader.personalityArraySectionOffset() +
-        personalityIndex * sizeof(uint32_t));
+        personalityIndex * sizeof(std::uint32_t));
     pint_t personalityPointer = sects.dso_base + (pint_t)personalityDelta;
     personality = _addressSpace.getP(personalityPointer);
     if (log)
@@ -1232,7 +1241,7 @@ void UnwindCursor<A, R>::setInfoBasedOnIPRegister(bool isReturnAddress) {
       if (this->getInfoFromCompactEncodingSection(pc, sects)) {
   #if defined(_LIBUNWIND_SUPPORT_DWARF_UNWIND)
         // Found info in table, done unless encoding says to use dwarf.
-        uint32_t dwarfOffset;
+        std::uint32_t dwarfOffset;
         if ((sects.dwarf_section != 0) && compactSaysUseDwarf(&dwarfOffset)) {
           if (this->getInfoFromDwarfSection(pc, sects, dwarfOffset)) {
             // found info in dwarf, done
@@ -1269,6 +1278,7 @@ void UnwindCursor<A, R>::setInfoBasedOnIPRegister(bool isReturnAddress) {
 #if defined(_LIBUNWIND_SUPPORT_DWARF_UNWIND)
   // There is no static unwind info for this pc. Look to see if an FDE was
   // dynamically registered for it.
+#ifndef LIBUNWIND_STANDFREE
   pint_t cachedFDE = DwarfFDECache<A>::findFDE(0, pc);
   if (cachedFDE != 0) {
     CFI_Parser<LocalAddressSpace>::FDE_Info fdeInfo;
@@ -1290,12 +1300,13 @@ void UnwindCursor<A, R>::setInfoBasedOnIPRegister(bool isReturnAddress) {
         _info.flags            = 0;
         _info.format           = dwarfEncoding();
         _info.unwind_info      = fdeInfo.fdeStart;
-        _info.unwind_info_size = (uint32_t)fdeInfo.fdeLength;
+        _info.unwind_info_size = (std::uint32_t)fdeInfo.fdeLength;
         _info.extra            = 0;
         return;
       }
     }
   }
+#endif // LIBUNWIND_STANDFREE
 
   // Lastly, ask AddressSpace object about platform specific ways to locate
   // other FDEs.
@@ -1318,7 +1329,7 @@ void UnwindCursor<A, R>::setInfoBasedOnIPRegister(bool isReturnAddress) {
           _info.flags            = 0;
           _info.format           = dwarfEncoding();
           _info.unwind_info      = fdeInfo.fdeStart;
-          _info.unwind_info_size = (uint32_t)fdeInfo.fdeLength;
+          _info.unwind_info_size = (std::uint32_t)fdeInfo.fdeLength;
           _info.extra            = 0;
           return;
         }
@@ -1369,7 +1380,7 @@ void UnwindCursor<A, R>::getInfo(unw_proc_info_t *info) {
 }
 
 template <typename A, typename R>
-bool UnwindCursor<A, R>::getFunctionName(char *buf, size_t bufLen,
+bool UnwindCursor<A, R>::getFunctionName(char *buf, std::size_t bufLen,
                                                            unw_word_t *offset) {
   return _addressSpace.findFunctionName((pint_t)this->getReg(UNW_REG_IP),
                                          buf, bufLen, offset);

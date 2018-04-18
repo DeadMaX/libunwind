@@ -38,7 +38,7 @@
 // architecture specific way, which registers to restore from where, and how
 // to unwind out of the function.
 //
-typedef uint32_t compact_unwind_encoding_t;
+typedef std::uint32_t compact_unwind_encoding_t;
 
 
 // architecture independent bits
@@ -141,9 +141,9 @@ enum {
 // with frameless stacks.  It is passed the number of registers to be saved and
 // an array of the register numbers saved.
 //
-//uint32_t permute_encode(uint32_t registerCount, const uint32_t registers[6])
+//std::uint32_t permute_encode(std::uint32_t registerCount, const std::uint32_t registers[6])
 //{
-//    uint32_t renumregs[6];
+//    std::uint32_t renumregs[6];
 //    for (int i=6-registerCount; i < 6; ++i) {
 //        int countless = 0;
 //        for (int j=6-registerCount; j < i; ++j) {
@@ -152,7 +152,7 @@ enum {
 //        }
 //        renumregs[i] = registers[i] - countless -1;
 //    }
-//    uint32_t permutationEncoding = 0;
+//    std::uint32_t permutationEncoding = 0;
 //    switch ( registerCount ) {
 //        case 6:
 //            permutationEncoding |= (120*renumregs[0] + 24*renumregs[1]
@@ -409,30 +409,30 @@ enum {
 #define UNWIND_SECTION_VERSION 1
 struct unwind_info_section_header
 {
-    uint32_t    version;            // UNWIND_SECTION_VERSION
-    uint32_t    commonEncodingsArraySectionOffset;
-    uint32_t    commonEncodingsArrayCount;
-    uint32_t    personalityArraySectionOffset;
-    uint32_t    personalityArrayCount;
-    uint32_t    indexSectionOffset;
-    uint32_t    indexCount;
+    std::uint32_t    version;            // UNWIND_SECTION_VERSION
+    std::uint32_t    commonEncodingsArraySectionOffset;
+    std::uint32_t    commonEncodingsArrayCount;
+    std::uint32_t    personalityArraySectionOffset;
+    std::uint32_t    personalityArrayCount;
+    std::uint32_t    indexSectionOffset;
+    std::uint32_t    indexCount;
     // compact_unwind_encoding_t[]
-    // uint32_t personalities[]
+    // std::uint32_t personalities[]
     // unwind_info_section_header_index_entry[]
     // unwind_info_section_header_lsda_index_entry[]
 };
 
 struct unwind_info_section_header_index_entry
 {
-    uint32_t        functionOffset;
-    uint32_t        secondLevelPagesSectionOffset;  // section offset to start of regular or compress page
-    uint32_t        lsdaIndexArraySectionOffset;    // section offset to start of lsda_index array for this range
+    std::uint32_t        functionOffset;
+    std::uint32_t        secondLevelPagesSectionOffset;  // section offset to start of regular or compress page
+    std::uint32_t        lsdaIndexArraySectionOffset;    // section offset to start of lsda_index array for this range
 };
 
 struct unwind_info_section_header_lsda_index_entry
 {
-    uint32_t        functionOffset;
-    uint32_t        lsdaOffset;
+    std::uint32_t        functionOffset;
+    std::uint32_t        lsdaOffset;
 };
 
 //
@@ -444,27 +444,27 @@ struct unwind_info_section_header_lsda_index_entry
 
 struct unwind_info_regular_second_level_entry
 {
-    uint32_t                    functionOffset;
+    std::uint32_t                    functionOffset;
     compact_unwind_encoding_t    encoding;
 };
 
 #define UNWIND_SECOND_LEVEL_REGULAR 2
 struct unwind_info_regular_second_level_page_header
 {
-    uint32_t    kind;    // UNWIND_SECOND_LEVEL_REGULAR
-    uint16_t    entryPageOffset;
-    uint16_t    entryCount;
+    std::uint32_t    kind;    // UNWIND_SECOND_LEVEL_REGULAR
+    std::uint16_t    entryPageOffset;
+    std::uint16_t    entryCount;
     // entry array
 };
 
 #define UNWIND_SECOND_LEVEL_COMPRESSED 3
 struct unwind_info_compressed_second_level_page_header
 {
-    uint32_t    kind;    // UNWIND_SECOND_LEVEL_COMPRESSED
-    uint16_t    entryPageOffset;
-    uint16_t    entryCount;
-    uint16_t    encodingsPageOffset;
-    uint16_t    encodingsCount;
+    std::uint32_t    kind;    // UNWIND_SECOND_LEVEL_COMPRESSED
+    std::uint16_t    entryPageOffset;
+    std::uint16_t    entryCount;
+    std::uint16_t    encodingsPageOffset;
+    std::uint16_t    encodingsCount;
     // 32-bit entry array
     // encodings array
 };

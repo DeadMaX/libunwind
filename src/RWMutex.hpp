@@ -14,6 +14,7 @@
 #ifndef __RWMUTEX_HPP__
 #define __RWMUTEX_HPP__
 
+#ifndef LIBUNWIND_STANDFREE
 #if defined(_WIN32)
 #include <windows.h>
 #elif !defined(_LIBUNWIND_HAS_NO_THREADS)
@@ -73,5 +74,7 @@ private:
 #endif
 
 } // namespace libunwind
+
+#endif // LIBUNWIND_STANDFREE
 
 #endif // __RWMUTEX_HPP__

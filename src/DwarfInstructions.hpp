@@ -156,7 +156,7 @@ int DwarfInstructions<A, R>::stepWithDwarf(A &addressSpace, pint_t pc,
   FDE_Info fdeInfo;
   CIE_Info cieInfo;
   if (CFI_Parser<A>::decodeFDE(addressSpace, fdeStart, &fdeInfo,
-                               &cieInfo) == NULL) {
+                               &cieInfo) == nullptr) {
     PrologInfo prolog;
     if (CFI_Parser<A>::parseFDEInstructions(addressSpace, fdeInfo, cieInfo, pc,
                                             &prolog)) {
@@ -216,44 +216,37 @@ typename A::pint_t
 DwarfInstructions<A, R>::evaluateExpression(pint_t expression, A &addressSpace,
                                             const R &registers,
                                             pint_t initialStackValue) {
-  const bool log = false;
   pint_t p = expression;
   pint_t expressionEnd = expression + 20; // temp, until len read
   pint_t length = (pint_t)addressSpace.getULEB128(p, expressionEnd);
   expressionEnd = p + length;
-  if (log)
-    fprintf(stderr, "evaluateExpression(): length=%" PRIu64 "\n",
-            (uint64_t)length);
+  _LIBUNWIND_DEBUG_LOG("evaluateExpression", "evaluateExpression(): length=" << length << "\n");
   pint_t stack[100];
   pint_t *sp = stack;
   *(++sp) = initialStackValue;
 
   while (p < expressionEnd) {
-    if (log) {
-      for (pint_t *t = sp; t > stack; --t) {
-        fprintf(stderr, "sp[] = 0x%" PRIx64 "\n", (uint64_t)(*t));
-      }
+    for (pint_t *t = sp; t > stack; --t) {
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "sp[] = " << reinterpret_cast<const void *>(*t) << "\n");
     }
-    uint8_t opcode = addressSpace.get8(p++);
+    std::uint8_t opcode = addressSpace.get8(p++);
     sint_t svalue, svalue2;
     pint_t value;
-    uint32_t reg;
+    std::uint32_t reg;
     switch (opcode) {
     case DW_OP_addr:
       // push immediate address sized value
       value = addressSpace.getP(p);
       p += sizeof(pint_t);
       *(++sp) = value;
-      if (log)
-        fprintf(stderr, "push 0x%" PRIx64 "\n", (uint64_t)value);
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "push " << reinterpret_cast<const void *>(value) << "\n");
       break;
 
     case DW_OP_deref:
       // pop stack, dereference, push result
       value = *sp--;
       *(++sp) = addressSpace.getP(value);
-      if (log)
-        fprintf(stderr, "dereference 0x%" PRIx64 "\n", (uint64_t)value);
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "dereference " << reinterpret_cast<const void *>(value) << "\n");
       break;
 
     case DW_OP_const1u:
@@ -261,17 +254,15 @@ DwarfInstructions<A, R>::evaluateExpression(pint_t expression, A &addressSpace,
       value = addressSpace.get8(p);
       p += 1;
       *(++sp) = value;
-      if (log)
-        fprintf(stderr, "push 0x%" PRIx64 "\n", (uint64_t)value);
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "push " << reinterpret_cast<const void *>(value) << "\n");
       break;
 
     case DW_OP_const1s:
       // push immediate 1 byte signed value
-      svalue = (int8_t) addressSpace.get8(p);
+      svalue = (std::int8_t) addressSpace.get8(p);
       p += 1;
       *(++sp) = (pint_t)svalue;
-      if (log)
-        fprintf(stderr, "push 0x%" PRIx64 "\n", (uint64_t)svalue);
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "push " << reinterpret_cast<const void *>(svalue) << "\n");
       break;
 
     case DW_OP_const2u:
@@ -279,17 +270,15 @@ DwarfInstructions<A, R>::evaluateExpression(pint_t expression, A &addressSpace,
       value = addressSpace.get16(p);
       p += 2;
       *(++sp) = value;
-      if (log)
-        fprintf(stderr, "push 0x%" PRIx64 "\n", (uint64_t)value);
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "push " << reinterpret_cast<const void *>(value) << "\n");
       break;
 
     case DW_OP_const2s:
       // push immediate 2 byte signed value
-      svalue = (int16_t) addressSpace.get16(p);
+      svalue = (std::int16_t) addressSpace.get16(p);
       p += 2;
       *(++sp) = (pint_t)svalue;
-      if (log)
-        fprintf(stderr, "push 0x%" PRIx64 "\n", (uint64_t)svalue);
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "push " << reinterpret_cast<const void *>(svalue) << "\n");
       break;
 
     case DW_OP_const4u:
@@ -297,17 +286,15 @@ DwarfInstructions<A, R>::evaluateExpression(pint_t expression, A &addressSpace,
       value = addressSpace.get32(p);
       p += 4;
       *(++sp) = value;
-      if (log)
-        fprintf(stderr, "push 0x%" PRIx64 "\n", (uint64_t)value);
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "push " << reinterpret_cast<const void *>(value) << "\n");
       break;
 
     case DW_OP_const4s:
       // push immediate 4 byte signed value
-      svalue = (int32_t)addressSpace.get32(p);
+      svalue = (std::int32_t)addressSpace.get32(p);
       p += 4;
       *(++sp) = (pint_t)svalue;
-      if (log)
-        fprintf(stderr, "push 0x%" PRIx64 "\n", (uint64_t)svalue);
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "push " << reinterpret_cast<const void *>(svalue) << "\n");
       break;
 
     case DW_OP_const8u:
@@ -315,8 +302,7 @@ DwarfInstructions<A, R>::evaluateExpression(pint_t expression, A &addressSpace,
       value = (pint_t)addressSpace.get64(p);
       p += 8;
       *(++sp) = value;
-      if (log)
-        fprintf(stderr, "push 0x%" PRIx64 "\n", (uint64_t)value);
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "push " << reinterpret_cast<const void *>(value) << "\n");
       break;
 
     case DW_OP_const8s:
@@ -324,47 +310,41 @@ DwarfInstructions<A, R>::evaluateExpression(pint_t expression, A &addressSpace,
       value = (pint_t)addressSpace.get64(p);
       p += 8;
       *(++sp) = value;
-      if (log)
-        fprintf(stderr, "push 0x%" PRIx64 "\n", (uint64_t)value);
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "push " << reinterpret_cast<const void *>(value) << "\n");
       break;
 
     case DW_OP_constu:
       // push immediate ULEB128 value
       value = (pint_t)addressSpace.getULEB128(p, expressionEnd);
       *(++sp) = value;
-      if (log)
-        fprintf(stderr, "push 0x%" PRIx64 "\n", (uint64_t)value);
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "push " << reinterpret_cast<const void *>(value) << "\n");
       break;
 
     case DW_OP_consts:
       // push immediate SLEB128 value
       svalue = (sint_t)addressSpace.getSLEB128(p, expressionEnd);
       *(++sp) = (pint_t)svalue;
-      if (log)
-        fprintf(stderr, "push 0x%" PRIx64 "\n", (uint64_t)svalue);
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "push " << reinterpret_cast<const void *>(svalue) << "\n");
       break;
 
     case DW_OP_dup:
       // push top of stack
       value = *sp;
       *(++sp) = value;
-      if (log)
-        fprintf(stderr, "duplicate top of stack\n");
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "duplicate top of stack\n");
       break;
 
     case DW_OP_drop:
       // pop
       --sp;
-      if (log)
-        fprintf(stderr, "pop top of stack\n");
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "pop top of stack\n");
       break;
 
     case DW_OP_over:
       // dup second
       value = sp[-1];
       *(++sp) = value;
-      if (log)
-        fprintf(stderr, "duplicate second in stack\n");
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "duplicate second in stack\n");
       break;
 
     case DW_OP_pick:
@@ -373,8 +353,7 @@ DwarfInstructions<A, R>::evaluateExpression(pint_t expression, A &addressSpace,
       p += 1;
       value = sp[-reg];
       *(++sp) = value;
-      if (log)
-        fprintf(stderr, "duplicate %d in stack\n", reg);
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "duplicate " << reg << " in stack\n");
       break;
 
     case DW_OP_swap:
@@ -382,8 +361,7 @@ DwarfInstructions<A, R>::evaluateExpression(pint_t expression, A &addressSpace,
       value = sp[0];
       sp[0] = sp[-1];
       sp[-1] = value;
-      if (log)
-        fprintf(stderr, "swap top of stack\n");
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "swap top of stack\n");
       break;
 
     case DW_OP_rot:
@@ -392,184 +370,159 @@ DwarfInstructions<A, R>::evaluateExpression(pint_t expression, A &addressSpace,
       sp[0] = sp[-1];
       sp[-1] = sp[-2];
       sp[-2] = value;
-      if (log)
-        fprintf(stderr, "rotate top three of stack\n");
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "rotate top three of stack\n");
       break;
 
     case DW_OP_xderef:
       // pop stack, dereference, push result
       value = *sp--;
       *sp = *((pint_t*)value);
-      if (log)
-        fprintf(stderr, "x-dereference 0x%" PRIx64 "\n", (uint64_t)value);
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "x-dereference " << reinterpret_cast<const void *>(value) << "\n");
       break;
 
     case DW_OP_abs:
       svalue = (sint_t)*sp;
       if (svalue < 0)
         *sp = (pint_t)(-svalue);
-      if (log)
-        fprintf(stderr, "abs\n");
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "abs\n");
       break;
 
     case DW_OP_and:
       value = *sp--;
       *sp &= value;
-      if (log)
-        fprintf(stderr, "and\n");
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "and\n");
       break;
 
     case DW_OP_div:
       svalue = (sint_t)(*sp--);
       svalue2 = (sint_t)*sp;
       *sp = (pint_t)(svalue2 / svalue);
-      if (log)
-        fprintf(stderr, "div\n");
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "div\n");
       break;
 
     case DW_OP_minus:
       value = *sp--;
       *sp = *sp - value;
-      if (log)
-        fprintf(stderr, "minus\n");
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "minus\n");
       break;
 
     case DW_OP_mod:
       svalue = (sint_t)(*sp--);
       svalue2 = (sint_t)*sp;
       *sp = (pint_t)(svalue2 % svalue);
-      if (log)
-        fprintf(stderr, "module\n");
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "module\n");
       break;
 
     case DW_OP_mul:
       svalue = (sint_t)(*sp--);
       svalue2 = (sint_t)*sp;
       *sp = (pint_t)(svalue2 * svalue);
-      if (log)
-        fprintf(stderr, "mul\n");
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "mul\n");
       break;
 
     case DW_OP_neg:
       *sp = 0 - *sp;
-      if (log)
-        fprintf(stderr, "neg\n");
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "neg\n");
       break;
 
     case DW_OP_not:
       svalue = (sint_t)(*sp);
       *sp = (pint_t)(~svalue);
-      if (log)
-        fprintf(stderr, "not\n");
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "not\n");
       break;
 
     case DW_OP_or:
       value = *sp--;
       *sp |= value;
-      if (log)
-        fprintf(stderr, "or\n");
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "or\n");
       break;
 
     case DW_OP_plus:
       value = *sp--;
       *sp += value;
-      if (log)
-        fprintf(stderr, "plus\n");
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "plus\n");
       break;
 
     case DW_OP_plus_uconst:
       // pop stack, add uelb128 constant, push result
       *sp += static_cast<pint_t>(addressSpace.getULEB128(p, expressionEnd));
-      if (log)
-        fprintf(stderr, "add constant\n");
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "add constant\n");
       break;
 
     case DW_OP_shl:
       value = *sp--;
       *sp = *sp << value;
-      if (log)
-        fprintf(stderr, "shift left\n");
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "shift left\n");
       break;
 
     case DW_OP_shr:
       value = *sp--;
       *sp = *sp >> value;
-      if (log)
-        fprintf(stderr, "shift left\n");
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "shift left\n");
       break;
 
     case DW_OP_shra:
       value = *sp--;
       svalue = (sint_t)*sp;
       *sp = (pint_t)(svalue >> value);
-      if (log)
-        fprintf(stderr, "shift left arithmetric\n");
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "shift left arithmetric\n");
       break;
 
     case DW_OP_xor:
       value = *sp--;
       *sp ^= value;
-      if (log)
-        fprintf(stderr, "xor\n");
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "xor\n");
       break;
 
     case DW_OP_skip:
-      svalue = (int16_t) addressSpace.get16(p);
+      svalue = (std::int16_t) addressSpace.get16(p);
       p += 2;
       p = (pint_t)((sint_t)p + svalue);
-      if (log)
-        fprintf(stderr, "skip %" PRIu64 "\n", (uint64_t)svalue);
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "skip " << svalue << "\n");
       break;
 
     case DW_OP_bra:
-      svalue = (int16_t) addressSpace.get16(p);
+      svalue = (std::int16_t) addressSpace.get16(p);
       p += 2;
       if (*sp--)
         p = (pint_t)((sint_t)p + svalue);
-      if (log)
-        fprintf(stderr, "bra %" PRIu64 "\n", (uint64_t)svalue);
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "bra " << svalue << "\n");
       break;
 
     case DW_OP_eq:
       value = *sp--;
       *sp = (*sp == value);
-      if (log)
-        fprintf(stderr, "eq\n");
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "eq\n");
       break;
 
     case DW_OP_ge:
       value = *sp--;
       *sp = (*sp >= value);
-      if (log)
-        fprintf(stderr, "ge\n");
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "ge\n");
       break;
 
     case DW_OP_gt:
       value = *sp--;
       *sp = (*sp > value);
-      if (log)
-        fprintf(stderr, "gt\n");
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "gt\n");
       break;
 
     case DW_OP_le:
       value = *sp--;
       *sp = (*sp <= value);
-      if (log)
-        fprintf(stderr, "le\n");
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "le\n");
       break;
 
     case DW_OP_lt:
       value = *sp--;
       *sp = (*sp < value);
-      if (log)
-        fprintf(stderr, "lt\n");
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "lt\n");
       break;
 
     case DW_OP_ne:
       value = *sp--;
       *sp = (*sp != value);
-      if (log)
-        fprintf(stderr, "ne\n");
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "ne\n");
       break;
 
     case DW_OP_lit0:
@@ -606,8 +559,7 @@ DwarfInstructions<A, R>::evaluateExpression(pint_t expression, A &addressSpace,
     case DW_OP_lit31:
       value = static_cast<pint_t>(opcode - DW_OP_lit0);
       *(++sp) = value;
-      if (log)
-        fprintf(stderr, "push literal 0x%" PRIx64 "\n", (uint64_t)value);
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "push literal " << reinterpret_cast<const void *>(value) << "\n");
       break;
 
     case DW_OP_reg0:
@@ -642,17 +594,15 @@ DwarfInstructions<A, R>::evaluateExpression(pint_t expression, A &addressSpace,
     case DW_OP_reg29:
     case DW_OP_reg30:
     case DW_OP_reg31:
-      reg = static_cast<uint32_t>(opcode - DW_OP_reg0);
+      reg = static_cast<std::uint32_t>(opcode - DW_OP_reg0);
       *(++sp) = registers.getRegister((int)reg);
-      if (log)
-        fprintf(stderr, "push reg %d\n", reg);
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "push reg " << reg << "\n");
       break;
 
     case DW_OP_regx:
-      reg = static_cast<uint32_t>(addressSpace.getULEB128(p, expressionEnd));
+      reg = static_cast<std::uint32_t>(addressSpace.getULEB128(p, expressionEnd));
       *(++sp) = registers.getRegister((int)reg);
-      if (log)
-        fprintf(stderr, "push reg %d + 0x%" PRIx64 "\n", reg, (uint64_t)svalue);
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "push reg " << reg << " + " << reinterpret_cast<const void *>(svalue) << "\n");
       break;
 
     case DW_OP_breg0:
@@ -687,21 +637,19 @@ DwarfInstructions<A, R>::evaluateExpression(pint_t expression, A &addressSpace,
     case DW_OP_breg29:
     case DW_OP_breg30:
     case DW_OP_breg31:
-      reg = static_cast<uint32_t>(opcode - DW_OP_breg0);
+      reg = static_cast<std::uint32_t>(opcode - DW_OP_breg0);
       svalue = (sint_t)addressSpace.getSLEB128(p, expressionEnd);
       svalue += static_cast<sint_t>(registers.getRegister((int)reg));
       *(++sp) = (pint_t)(svalue);
-      if (log)
-        fprintf(stderr, "push reg %d + 0x%" PRIx64 "\n", reg, (uint64_t)svalue);
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "push reg " << reg << " + " << reinterpret_cast<const void *>(svalue) << "\n");
       break;
 
     case DW_OP_bregx:
-      reg = static_cast<uint32_t>(addressSpace.getULEB128(p, expressionEnd));
+      reg = static_cast<std::uint32_t>(addressSpace.getULEB128(p, expressionEnd));
       svalue = (sint_t)addressSpace.getSLEB128(p, expressionEnd);
       svalue += static_cast<sint_t>(registers.getRegister((int)reg));
       *(++sp) = (pint_t)(svalue);
-      if (log)
-        fprintf(stderr, "push reg %d + 0x%" PRIx64 "\n", reg, (uint64_t)svalue);
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "push reg " << reg << " + " << reinterpret_cast<const void *>(svalue) << "\n");
       break;
 
     case DW_OP_fbreg:
@@ -732,8 +680,7 @@ DwarfInstructions<A, R>::evaluateExpression(pint_t expression, A &addressSpace,
         _LIBUNWIND_ABORT("DW_OP_deref_size with bad size");
       }
       *(++sp) = value;
-      if (log)
-        fprintf(stderr, "sized dereference 0x%" PRIx64 "\n", (uint64_t)value);
+      _LIBUNWIND_DEBUG_LOG("evaluateExpression", "sized dereference " << reinterpret_cast<const void *>(value) << "\n");
       break;
 
     case DW_OP_xderef_size:
@@ -747,8 +694,7 @@ DwarfInstructions<A, R>::evaluateExpression(pint_t expression, A &addressSpace,
     }
 
   }
-  if (log)
-    fprintf(stderr, "expression evaluates to 0x%" PRIx64 "\n", (uint64_t)*sp);
+  _LIBUNWIND_DEBUG_LOG("evaluateExpression", "expression evaluates to " << reinterpret_cast<const void *>(*sp) << "\n");
   return *sp;
 }
 
