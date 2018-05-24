@@ -21,6 +21,12 @@
 #include <pthread.h>
 #endif
 
+#else // LIBUNWIND_STANDFREE
+
+#include <mutex.h>
+
+#endif // LIBUNWIND_STANDFREE
+
 namespace libunwind {
 
 #if defined(_LIBUNWIND_HAS_NO_THREADS)
@@ -74,7 +80,5 @@ private:
 #endif
 
 } // namespace libunwind
-
-#endif // LIBUNWIND_STANDFREE
 
 #endif // __RWMUTEX_HPP__

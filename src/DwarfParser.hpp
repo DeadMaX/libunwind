@@ -346,7 +346,7 @@ bool CFI_Parser<A>::parseFDEInstructions(A &addressSpace,
                                          const CIE_Info &cieInfo, pint_t upToPC,
                                          PrologInfo *results) {
   // clear results
-  memset(results, '\0', sizeof(PrologInfo));
+  std::memset(results, '\0', sizeof(PrologInfo));
   PrologInfoStackEntry *rememberStack = nullptr;
 
   // parse CIE then FDE instructions
@@ -370,7 +370,7 @@ bool CFI_Parser<A>::parseInstructions(A &addressSpace, pint_t instructions,
   PrologInfo initialState = *results;
 
   _LIBUNWIND_TRACE_DWARF("parseInstructions(instructions=" <<
-                         static_cast<const void *>(instructionsEnd) << ")\n");
+                         reinterpret_cast<const void *>(instructionsEnd) << ")\n");
   // see DWARF Spec, section 6.4.2 for details on unwind opcodes
   while ((p < instructionsEnd) && (codeOffset < pcoffset)) {
     std::uint64_t reg;
@@ -531,7 +531,7 @@ bool CFI_Parser<A>::parseInstructions(A &addressSpace, pint_t instructions,
       length = addressSpace.getULEB128(p, instructionsEnd);
       assert(length < std::numeric_limits<pint_t>::max() && "pointer overflow");
       p += static_cast<pint_t>(length);
-      _LIBUNWIND_TRACE_DWARF("DW_CFA_def_cfa_expression(expression=" << static_cast<const void *>(results->cfaExpression) <<
+      _LIBUNWIND_TRACE_DWARF("DW_CFA_def_cfa_expression(expression=" << reinterpret_cast<const void *>(results->cfaExpression) <<
                              ", length=" << length << ")\n");
       break;
     case DW_CFA_expression:
@@ -546,7 +546,7 @@ bool CFI_Parser<A>::parseInstructions(A &addressSpace, pint_t instructions,
       assert(length < std::numeric_limits<pint_t>::max() && "pointer overflow");
       p += static_cast<pint_t>(length);
       _LIBUNWIND_TRACE_DWARF("DW_CFA_expression(reg=" << reg << ", "
-                             "expression=" << static_cast<const void *>(results->savedRegisters[reg].value) << ", "
+                             "expression=" << reinterpret_cast<const void *>(results->savedRegisters[reg].value) << ", "
                              "length=" << length << ")\n");
       break;
     case DW_CFA_offset_extended_sf:
@@ -620,7 +620,7 @@ bool CFI_Parser<A>::parseInstructions(A &addressSpace, pint_t instructions,
       assert(length < std::numeric_limits<pint_t>::max() && "pointer overflow");
       p += static_cast<pint_t>(length);
       _LIBUNWIND_TRACE_DWARF("DW_CFA_val_expression(reg=" << reg << ", "
-                             "expression=" << static_cast<const void *>(results->savedRegisters[reg].value) << ", length=" << length << ")\n");
+                             "expression=" << reinterpret_cast<const void *>(results->savedRegisters[reg].value) << ", length=" << length << ")\n");
       break;
     case DW_CFA_GNU_args_size:
       length = addressSpace.getULEB128(p, instructionsEnd);
@@ -672,7 +672,7 @@ bool CFI_Parser<A>::parseInstructions(A &addressSpace, pint_t instructions,
         _LIBUNWIND_TRACE_DWARF("DW_CFA_restore(reg=" << static_cast<std::uint64_t>(operand) << ")\n");
         break;
       default:
-        _LIBUNWIND_TRACE_DWARF("unknown CFA opcode " << static_cast<const void *>(static_cast<pint_t>(opcode)) << "\n");
+        _LIBUNWIND_TRACE_DWARF("unknown CFA opcode " << reinterpret_cast<const void *>(static_cast<pint_t>(opcode)) << "\n");
         return false;
       }
     }

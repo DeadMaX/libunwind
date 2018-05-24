@@ -39,7 +39,6 @@ namespace libunwind {
 #if defined(_LIBUNWIND_SUPPORT_DWARF_UNWIND)
 /// Cache of recently found FDEs.
 
-#ifndef LIBUNWIND_STANDFREE
 template <typename A>
 class _LIBUNWIND_HIDDEN DwarfFDECache {
   typedef typename A::pint_t pint_t;
@@ -176,7 +175,6 @@ void DwarfFDECache<A>::iterateCacheEntries(void (*func)(
   }
   _LIBUNWIND_LOG_IF_FALSE(_lock.unlock());
 }
-#endif // LIBUNWIND_STANDFREE
 #endif // defined(_LIBUNWIND_SUPPORT_DWARF_UNWIND)
 
 
@@ -614,13 +612,13 @@ UnwindCursor<A, R>::UnwindCursor(unw_context_t *context, A &as)
       _isSignalFrame(false) {
   static_assert((check_fit<UnwindCursor<A, R>, unw_cursor_t>::does_fit),
                 "UnwindCursor<> does not fit in unw_cursor_t");
-  memset(&_info, 0, sizeof(_info));
+  std::memset(&_info, 0, sizeof(_info));
 }
 
 template <typename A, typename R>
 UnwindCursor<A, R>::UnwindCursor(A &as, void *)
     : _addressSpace(as), _unwindInfoMissing(false), _isSignalFrame(false) {
-  memset(&_info, 0, sizeof(_info));
+  std::memset(&_info, 0, sizeof(_info));
   // FIXME
   // fill in _registers from thread arg
 }
